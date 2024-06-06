@@ -3,7 +3,7 @@ import csv
 
 import requests
 from bs4 import BeautifulSoup
-from pprint import pprint
+import pprint
 
 # extraction de l'url de la page du livre choisi
 
