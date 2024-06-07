@@ -120,9 +120,11 @@ headers = ['product_page_url', 'universal_product_code', 'title', 'price_includi
 with open("book.csv", "w") as csv_file:
     writer = csv.writer(csv_file, delimiter=",")
     writer.writerow(headers)
-    for product_catalogue_url, universal_product_code, title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url  in zip(product_page_url, universal_product_code, title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url):
+    for product_catalogue_url, universal_product_code, title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url in zip(product_page_url, universal_product_code, title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url):
         writer.writerow([product_page_url, universal_product_code, title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url])
 
 
 #---------------PHASE 2 ---------------------
 
+nav = soup.find("ul", class_='nav nav-list')
+print(nav.find_all("a"))
