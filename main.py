@@ -29,7 +29,6 @@ print(product_page_url)
 
 
 
-
 # Extraction des données de la page du livre choisi, avec BeautifulSoup
 
 
@@ -97,7 +96,7 @@ print(product_description.text)
 rating = column.find_all("p")
 review_rating_text = rating[2]["class"][1]
 
-    # je transforme eview_rating en liste pour l'intégrer dans le fichier CSV
+    # je transforme review_rating en liste pour pouvoir l'intégrer dans le fichier CSV
 review_rating = review_rating_text.split()
 
 print(review_rating)
@@ -109,8 +108,7 @@ image_url_text = section.find("img").get("src")
     # je transforme image_url_text en liste pour l'intégrer dans le fichier CSV
 image_url = image_url_text.split()
 
-print(image_url)
-
+print(url + image_url_text)
 
 
 
@@ -126,5 +124,37 @@ with open("book.csv", "w") as csv_file:
 
 #---------------PHASE 2 ---------------------
 
-nav = soup.find("ul", class_='nav nav-list')
-print(nav.find_all("a"))
+# je choisis la catégorie Mystery (32 livres)
+
+url_mystery = "https://books.toscrape.com/catalogue/category/books/mystery_3/index.html"
+response_mystery = requests.get(url_mystery)
+mystery_soup = BeautifulSoup(response_mystery.content, "html.parser")
+
+# je vise où se situent l'ensemble des livres de la page (mystery_column)
+# et je selectionne tous les livres (mystery_books)
+
+
+mystery_column = mystery_soup.find("ol", class_="row")
+mystery_books = mystery_column.find_all("li", class_="col-xs-6 col-sm-4 col-md-3 col-lg-3")
+
+# le lien de chaque livre est situé dans les balises h3 :
+
+mystery_books_urls = mystery_column.find_all("h3")
+
+# je boucle sur l'ensemble des balises h3 et selectione la première entrée [0]
+# de chaque attribut "a"
+# puis je concatene le lien "attrapé" avec l'url de la page
+
+for mystery_books_url in mystery_books_urls:
+    links = mystery_books_url.find_all("a")
+    link = links[0]
+    print(url + link.get("href"))
+
+# cas où la catégorie comporte plusieurs pages
+
+
+
+
+
+
+
