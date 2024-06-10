@@ -1,9 +1,10 @@
-# import des bibliothèques requests et BeautifulSoup
+# import des bibliothèques
 import csv
 
+from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
-import pprint
+
 
 # extraction de l'url de la page du livre choisi
 
@@ -21,9 +22,7 @@ for links in product_catalogue_url :
     link = links.find_all("a")
 
 url_catalogue = link[0].get('href')
-
 product_page_url = url+url_catalogue
-
 
 print(product_page_url)
 
@@ -105,7 +104,9 @@ print(review_rating)
 
 section = book_soup.find("div", class_="col-sm-6")
 image_url_text = section.find("img").get("src")
+
     # je transforme image_url_text en liste pour l'intégrer dans le fichier CSV
+
 image_url = image_url_text.split()
 
 print(url + image_url_text)
@@ -130,6 +131,7 @@ url_mystery = "https://books.toscrape.com/catalogue/category/books/mystery_3/ind
 response_mystery = requests.get(url_mystery)
 mystery_soup = BeautifulSoup(response_mystery.content, "html.parser")
 
+
 # je vise où se situent l'ensemble des livres de la page (mystery_column)
 # et je selectionne tous les livres (mystery_books)
 
@@ -145,12 +147,92 @@ mystery_books_urls = mystery_column.find_all("h3")
 # de chaque attribut "a"
 # puis je concatene le lien "attrapé" avec l'url de la page
 
+# for mystery_books_url in mystery_books_urls:
+#     links = mystery_books_url.find_all("a")
+#     link = links[0]
+#     books_url = url+link.get("href")
+#     books_response = requests.get(books_url)
+#     books_soup = BeautifulSoup(books_response.content, "html.parser")
+#     print(books_soup)
+#     products_information = books_soup.find("table", class_="table table-striped")
+#     # books_informations = products_information.find_all("tr")
+#     # u_p_c = books_informations[0].find("td")
+#     # print(u_p_c)
+#     print(books_url)
+
 for mystery_books_url in mystery_books_urls:
     links = mystery_books_url.find_all("a")
     link = links[0]
+
     print(url + link.get("href"))
 
+
 # cas où la catégorie comporte plusieurs pages
+
+next_page = mystery_soup.find("li", class_="next")
+
+while next_page is not None:
+    next_page_relative_url = next_page.find("a")["href"]
+    next_page_url = url_mystery[0:len(url_mystery)-10] + next_page_relative_url
+    page = requests.get(next_page_url)
+    soup2 = BeautifulSoup(page.content, "html.parser")
+    next_page = soup2.find("li", class_="next")
+    mystery_column_next = soup2.find("ol", class_="row")
+    mystery_books_next = mystery_column_next.find_all("li", class_="col-xs-6 col-sm-4 col-md-3 col-lg-3")
+    mystery_books_urls_next = mystery_column_next.find_all("h3")
+    for mystery_books_url_next in mystery_books_urls_next:
+        links = mystery_books_url_next.find_all("a")
+        link = links[0]
+        print(next_page_url+link.get("href"))
+
+
+
+
+
+#--------------------------------------essai catégorie default------------------
+#
+# url_mystery = "https://books.toscrape.com/catalogue/category/books/default_15/index.html"
+# response_mystery = requests.get(url_mystery)
+# mystery_soup = BeautifulSoup(response_mystery.content, "html.parser")
+#
+# # je vise où se situent l'ensemble des livres de la page (mystery_column)
+# # et je selectionne tous les livres (mystery_books)
+#
+# mystery_column = mystery_soup.find("ol", class_="row")
+# mystery_books = mystery_column.find_all("li", class_="col-xs-6 col-sm-4 col-md-3 col-lg-3")
+#
+# # le lien de chaque livre est situé dans les balises h3 :
+#
+# mystery_books_urls = mystery_column.find_all("h3")
+#
+# # je boucle sur l'ensemble des balises h3 et selectione la première entrée [0]
+# # de chaque attribut "a"
+# # puis je concatene le lien "attrapé" avec l'url de la page
+#
+# for mystery_books_url in mystery_books_urls:
+#     links = mystery_books_url.find_all("a")
+#     link = links[0]
+#     print(url + link.get("href"))
+#
+# # cas où la catégorie comporte plusieurs pages
+#
+# next_page = mystery_soup.find("li", class_="next")
+#
+# while next_page is not None:
+#     next_page_relative_url = next_page.find("a")["href"]
+#     next_page_url = url_mystery[0:len(url_mystery)-10] + next_page_relative_url
+#     page = requests.get(next_page_url)
+#     soup2 = BeautifulSoup(page.content, "html.parser")
+#     next_page = soup2.find("li", class_="next")
+#     mystery_column_next = soup2.find("ol", class_="row")
+#     mystery_books_next = mystery_column_next.find_all("li", class_="col-xs-6 col-sm-4 col-md-3 col-lg-3")
+#     mystery_books_urls_next = mystery_column_next.find_all("h3")
+#     for mystery_books_url_next in mystery_books_urls_next:
+#         links = mystery_books_url_next.find_all("a")
+#         link = links[0]
+#         print(next_page_url+link.get("href"))
+#         print(len(next_page_url+link.get("href")))
+
 
 
 
