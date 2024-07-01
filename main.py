@@ -170,20 +170,6 @@ for mystery_books_url in mystery_books_urls:
     descriptions.append(description)
 
 
-    # Création d'un fichier CSV avec les informations obtenues
-
-headers = ["books_url", "universal_product_code", "title", "price_including_tax",
-           "price_excluding_tax", "number_available","product_description",
-           "category", "review_rating", "image_url"]
-with open("category.csv", "w", newline="") as csv_file:
-    writer = csv.writer(csv_file, delimiter=",")
-    writer.writerow(headers)
-    for description in descriptions:
-        writer.writerow(description)
-
-
-
-
 
     # cas où la catégorie comporte plusieurs pages, je recommence le processus ci-dessus avec les
     # pages "next" détectées
@@ -236,33 +222,24 @@ while next_page is not None:
 
 
 
-#     # Création d'un fichier CSV avec les informations obtenues
-#
-headers = ['books_url', 'universal_product_code', 'title', 'price_including_tax', 'price_excluding_tax',
-           'number_available','product_description', 'category', 'review_rating', 'image_url' ]
-with open("category_next.csv", "w", newline="") as csv_file:
-    writer = csv.writer(csv_file, delimiter=",")
-    writer.writerow(headers)
-    for description_next in descriptions_next:
-        writer.writerow(description_next)
+# Création d'un fichier CSV avec les informations obtenues
 
-    # Création du fichier csv contenant l'ensemble des informations de la catégorie
+description_next = sum(descriptions_next, [])
+
+full_description = description + description_next
+full_descriptions = descriptions + descriptions_next
 
 
-with open("category.csv", "r") as file1:
-    data1 = list(csv.reader(file1, delimiter=","))
 
-with open("category_next.csv", "r") as file2:
-    data2 = list(csv.reader(file2, delimiter=","))
-for line in data2[1:]:
-    data1.append(line)
-
-headers = data1[0]
+headers = ['books_url', 'universal_product_code', 'title', 'price_including_tax',
+           'price_excluding_tax', 'number_available', 'product_description', 'category',
+           'review_rating', 'image_url']
 with open("full_category.csv", "w", newline="") as csv_file:
     writer = csv.writer(csv_file, delimiter=",")
     writer.writerow(headers)
-    for element in data1[1:]:
-        writer.writerow(element)
+    for full_description in full_descriptions:
+        writer.writerow(full_description)
+
 
 
 
@@ -274,6 +251,7 @@ with open("full_category.csv", "w", newline="") as csv_file:
 aside = soup.find("div", class_="side_categories")
 categories = aside.find("ul").find("li").find("ul")
 urls_categories = categories.find_all("li")
+
 
 descriptions_books_categories = []
 for urls_category in urls_categories:
@@ -317,26 +295,23 @@ for urls_category in urls_categories:
         image_url_text = section.find("img").get("src")
         image_url_category_first_page = url + image_url_text[6:]
 
-#         description_books_categories = [every_books_url, universal_product_code.text, title.text,
-#                                         price_including_tax.text, price_excluding_tax.text, number_available.text,
-#                                         product_description.text.strip(),
-#                                         category.text.strip(), "".join(review_rating), image_url_category_first_page]
-#
-#         descriptions_books_categories.append(description_books_categories)
-#
-#
-# headers = ["books_url", "universal_product_code", "title", "price_including_tax",
-#            "price_excluding_tax", "number_available","product_description",
-#            "category", "review_rating", "image_url"]
-# with open("books_category_first_page.csv", "w", encoding='utf-8', newline="") as csv_file:
-#     writer = csv.writer(csv_file, delimiter=",")
-#     writer.writerow(headers)
-#     for description_books_categories in descriptions_books_categories:
-#         writer.writerow(description_books_categories)
+        description_books_categories = [every_books_url, universal_product_code.text, title.text,
+                                        price_including_tax.text, price_excluding_tax.text, number_available.text,
+                                        product_description.text.strip(),
+                                        category.text.strip(), "".join(review_rating), image_url_category_first_page]
+
+        descriptions_books_categories.append(description_books_categories)
+
+        filename = title.text
+        image = requests.get(image_url_category_first_page)
+        with open(filename.strip().replace("#", "").replace("?", "").replace(":", "").replace("*","").replace('"', "") + ".jpg", "wb") as f:
+            f.write(image.content)
+
+
 
 # on réitère le processus pour chaque "page suivante" de chaque catégorie
 
-descriptions_next = []
+descriptions_next_category = []
 for urls_category in urls_categories:
     links = urls_category.find_all("a")
     link = links[0]
@@ -386,25 +361,50 @@ for urls_category in urls_categories:
             image_url_next = url + image_url_text[6:]
 
             filename = title.text
-            image = requests.get(image_url_category_first_page)
-            with open(filename.strip()+".jpg", "wb") as f:
+            image = requests.get(image_url_next)
+            with open(filename.strip().replace("#", "").replace("?", "").replace(":", "")
+                              .replace("*", "").replace('"',"").replace("/","") + ".jpg","wb") as f:
                 f.write(image.content)
 
 
 
-#             description_next = [books_next_page_urls, universal_product_code.text, title.text, price_including_tax.text,
-#                                 price_excluding_tax.text, number_available.text, product_description.text.strip(),
-#                                 category.text.strip(), "".join(review_rating), image_url_next]
-#             descriptions_next.append(description_next)
+            description_next_category = [books_next_page_urls, universal_product_code.text, title.text,
+                                         price_including_tax.text, price_excluding_tax.text, number_available.text,
+                                         product_description.text.strip(), category.text.strip(), "".join(review_rating), image_url_next]
+            descriptions_next_category.append(description_next_category)
+
+
+
+
+# Création d'un fichier CSV avec les informations obtenues
+
+
+# description_next_category = sum(descriptions_next_category, [])
+# full_description_category = description_books_categories + description_next_category
+# full_descriptions_category = descriptions_books_categories + descriptions_next_category
 #
-# headers = ["books_url", "universal_product_code", "title", "price_including_tax",
-#            "price_excluding_tax", "number_available", "product_description",
-#            "category", "review_rating", "image_url"]
-# with (open("books_category_next_page.csv", "w", encoding='utf-8', newline="") as csv_file):
-#     writer = csv.writer(csv_file, delimiter=",")
-#     writer.writerow(headers)
-#     for description_next in descriptions_next:
-#         writer.writerow(description_next)
+# cat = []
+# for category in categories.children:
+#   cat.append(category.text.strip())
+#   categories_list = list(set(cat))
+#   categories = categories_list[1:]
+#
+# for category in categories:
+#
+#   headers = ["books_url", "universal_product_code", "title", "price_including_tax",
+#              "price_excluding_tax", "number_available", "product_description",
+#              "category", "review_rating", "image_url"]
+#
+#
+#   with open(category + ".csv", "w", encoding='utf-8', newline="") as csv_file:
+#       writer = csv.writer(csv_file, delimiter=",")
+#       writer.writerow(headers)
+#       for full_description_category in full_descriptions_category:
+#           writer.writerow(full_description_category)
+
+
+
+
 
 
 
@@ -412,6 +412,11 @@ for urls_category in urls_categories:
 
 
 
+            # filename = title.text
+            # image = requests.get(image_url_category_first_page)
+            # print("ecriture du fichier image")
+            # with open("image.jpg", "wb") as f:
+            #     f.write(image.content)
 
 
 
