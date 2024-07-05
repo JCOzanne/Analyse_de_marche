@@ -283,7 +283,21 @@ for urls_category in urls_categories:
 
         all_books_by_categories[-1].append(description_books_categories)
 
+for books in all_books_by_categories:
+    for i in range(50):
+        category_name = all_books_by_categories[i][0][7]
 
+        headers = ["books_url", "universal_product_code", "title",
+                   "price_including_tax",
+                   "price_excluding_tax", "number_available", "product_description",
+                   "category", "review_rating", "image_url"]
+
+        with open(category_name + ".csv", "w", encoding='utf-8', newline="") as csv_file:
+            writer = csv.writer(csv_file, delimiter=",")
+            writer.writerow(headers)
+            for books in all_books_by_categories:
+                for description_books_categories in all_books_by_categories:
+                    writer.writerow(description_books_categories)
 
 
 
