@@ -283,9 +283,9 @@ for urls_category in urls_categories:
 
         all_books_by_categories[-1].append(description_books_categories)
 
-for books in all_books_by_categories:
-    for i in range(50):
-        category_name = all_books_by_categories[i][0][7]
+for i in all_books_by_categories:
+    for j in i:
+        category_name = j[7]
 
         headers = ["books_url", "universal_product_code", "title",
                    "price_including_tax",
@@ -295,9 +295,8 @@ for books in all_books_by_categories:
         with open(category_name + ".csv", "w", encoding='utf-8', newline="") as csv_file:
             writer = csv.writer(csv_file, delimiter=",")
             writer.writerow(headers)
-            for books in all_books_by_categories:
-                for description_books_categories in all_books_by_categories:
-                    writer.writerow(description_books_categories)
+            for description_books_categories in i:
+                writer.writerow(description_books_categories)
 
 
 
@@ -380,27 +379,45 @@ for urls_category in urls_categories:
 
             all_books_by_categories_next[-1].append(description_next_category)
 
-
+#
 # description_next_category = sum(description_next_category, [])
 # full_description_categorie = description_books_categories + description_next_category
 # all_books = all_books_by_categories + all_books_by_categories_next
+
+for i in all_books_by_categories:
+    for j in i:
+        category_name = j[7]
+
+        headers = ["books_url", "universal_product_code", "title",
+                   "price_including_tax",
+                   "price_excluding_tax", "number_available", "product_description",
+                   "category", "review_rating", "image_url"]
+
+        with open(category_name + ".csv", "w", encoding='utf-8', newline="") as csv_file:
+            writer = csv.writer(csv_file, delimiter=",")
+            writer.writerow(headers)
+            for description_books_categories in i:
+                writer.writerow(description_books_categories)
+
+
+
+
+# for i,j in description_books_categories, all_books_by_categories_next:
+#     for k, l in i, j:
+#         category_name = k[7]
 #
+#         headers = ["books_url", "universal_product_code", "title",
+#                    "price_including_tax",
+#                    "price_excluding_tax", "number_available", "product_description",
+#                    "category", "review_rating", "image_url"]
 #
-#
-# for i in range(50):
-#     categories_name = all_books[i][0][7]
-#
-#
-#     headers = ["books_url", "universal_product_code", "title",
-#                "price_including_tax",
-#                "price_excluding_tax", "number_available", "product_description",
-#                "category", "review_rating", "image_url"]
-#
-#     with open(categories_name + ".csv", "w", encoding='utf-8', newline="") as csv_file:
-#         writer = csv.writer(csv_file, delimiter=",")
-#         writer.writerow(headers)
-#         for full_description_categorie in all_books:
-#             writer.writerow(full_description)
+#         with open(category_name + ".csv", "w", encoding='utf-8', newline="") as csv_file:
+#             writer = csv.writer(csv_file, delimiter=",")
+#             writer.writerow(headers)
+#             for description_books_categories, description_next_category in zip(i, j):
+#                 writer.writerow([description_books_categories, description_next_category])
+
+
 
 
 
