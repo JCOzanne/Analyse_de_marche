@@ -4,6 +4,13 @@ import csv
 import requests
 from bs4 import BeautifulSoup
 
+import os
+
+# Créer un répertoire pour stocker les images s'il n'existe pas
+image_directory = 'book_images'
+if not os.path.exists(image_directory):
+    os.makedirs(image_directory)
+
 # requête sur l'url de la page et extraction des données html
 
 url = "https://books.toscrape.com/"
@@ -221,21 +228,27 @@ with open("full_category.csv", "w", newline="") as csv_file:
 #---------------PHASE 3 ---------------------
 
 
-#extraction des urls des catégories de livres
+# Créer un répertoire pour stocker les images
+# image_directory = 'book_images'
+# if not os.path.exists(image_directory):
+#     os.makedirs(image_directory)
 
+# URL de la page d'accueil
+url = "https://books.toscrape.com/"
+response = requests.get(url)
+soup = BeautifulSoup(response.content, "html.parser")
+
+# Extraction des URLs des catégories de livres
 aside = soup.find("div", class_="side_categories")
 categories = aside.find("ul").find("li").find("ul")
 urls_categories = categories.find_all("li")
 
-# on boucle sur l'ensemble des premières pages des catégories pour obtenir
-# les url de chaque livre
-
+# Initialiser une liste pour stocker les données des livres
 all_books_by_categories = []
 descriptions_books_categories = []
+
 for urls_category in urls_categories:
-
     all_books_by_categories.append([])
-
     links = urls_category.find_all("a")
     link = links[0]
     category_urls = url + link.get("href")
@@ -247,8 +260,7 @@ for urls_category in urls_categories:
     category_books = category_column.find_all("li", class_="col-xs-6 col-sm-4 col-md-3 col-lg-3")
     category_books_urls = category_column.find_all("h3")
 
-    # on boucle - pour chaque catégorie - sur l'ensemble des livres de la première page
-
+    # Boucler sur chaque livre de la première page de chaque catégorie
     for category_books_url in category_books_urls:
         links = category_books_url.find_all("a")
         link = links[0]
@@ -276,6 +288,16 @@ for urls_category in urls_categories:
         image_url_text = section.find("img").get("src")
         image_url_category_first_page = url + image_url_text[6:]
 
+        # Nettoyer le titre du livre pour l'utiliser comme nom de fichier
+        cleaned_title = title.text.replace('\\', '').replace('/', '').replace('*', '').replace('?', '').replace(':', '').replace('"', '').replace('<', '').replace('>', '').replace('|', '').replace("-","").replace(",","")
+        image_name = "book_images/" + cleaned_title + ".jpg"
+
+        # Télécharger l'image avec le titre du livre comme nom de fichier
+        image_response = requests.get(image_url_category_first_page)
+        print("chemin de l'image", image_name)
+        with open(image_name, 'wb') as img_file:
+            img_file.write(image_response.content)
+
         description_books_categories = [every_books_url, universal_product_code.text, title.text,
                                         price_including_tax.text, price_excluding_tax.text, number_available.text,
                                         product_description.text.strip(),
@@ -283,39 +305,12 @@ for urls_category in urls_categories:
 
         all_books_by_categories[-1].append(description_books_categories)
 
-for i in all_books_by_categories:
-    for j in i:
-        category_name = j[7]
-
-        headers = ["books_url", "universal_product_code", "title",
-                   "price_including_tax",
-                   "price_excluding_tax", "number_available", "product_description",
-                   "category", "review_rating", "image_url"]
-
-        with open(category_name + ".csv", "w", encoding='utf-8', newline="") as csv_file:
-            writer = csv.writer(csv_file, delimiter=",")
-            writer.writerow(headers)
-            for description_books_categories in i:
-                writer.writerow(description_books_categories)
-
-
-
-
-# téléchargement des images (phase 4) des livres des premières pages de chaque catégorie
-
-# filename = title.text
-# image = requests.get(image_url_category_first_page)
-# with open(filename.strip().replace("#", "").replace("?", "").replace(":", "").replace("*","").replace('"', "") + ".jpg", "wb") as f:
-#     f.write(image.content)
-
-
-# on réitère le processus pour chaque "page suivante" de chaque catégorie
+# Réitérer le processus pour chaque "page suivante" de chaque catégorie
 
 
 all_books_by_categories_next = []
 descriptions_next_category = []
 for urls_category in urls_categories:
-
     all_books_by_categories_next.append([])
     links = urls_category.find_all("a")
     link = links[0]
@@ -337,7 +332,6 @@ for urls_category in urls_categories:
         category_books_next = category_column_next.find_all("li", class_="col-xs-6 col-sm-4 col-md-3 col-lg-3")
         category_books_urls_next = category_column_next.find_all("h3")
         for category_books_url_next in category_books_urls_next:
-
             links = category_books_url_next.find_all("a")
             link = links[0]
             books_next_page_urls = url + "catalogue" + link.get("href")[8:]
@@ -364,13 +358,14 @@ for urls_category in urls_categories:
             image_url_text = section.find("img").get("src")
             image_url_next = url + image_url_text[6:]
 
-            # téléchargement des images (phase 4) des livres des pages suivantes de chaque catégorie
+            # Nettoyer le titre du livre pour l'utiliser comme nom de fichier
+            cleaned_title = title.text.replace('\\', '').replace('/', '').replace('*', '').replace('?', '').replace(':', '').replace('"', '').replace('<', '').replace('>', '').replace('|', '')
+            image_name = "book_images/" + cleaned_title + ".jpg"
 
-            # filename = title.text
-            # image = requests.get(image_url_next)
-            # with open(filename.strip().replace("#", "").replace("?", "").replace(":", "")
-            #                   .replace("*", "").replace('"',"").replace("/","") + ".jpg","wb") as f:
-            #     f.write(image.content)
+            # Télécharger l'image avec le titre du livre comme nom de fichier
+            image_response = requests.get(image_url_next)
+            with open(image_name, 'wb') as img_file:
+                img_file.write(image_response.content)
 
             description_next_category = [books_next_page_urls, universal_product_code.text, title.text,
                                          price_including_tax.text, price_excluding_tax.text, number_available.text,
@@ -379,43 +374,28 @@ for urls_category in urls_categories:
 
             all_books_by_categories_next[-1].append(description_next_category)
 
-#
-# description_next_category = sum(description_next_category, [])
-# full_description_categorie = description_books_categories + description_next_category
-# all_books = all_books_by_categories + all_books_by_categories_next
+# Combiner les livres des premières pages et des pages suivantes
+all_books = {}
+for category in all_books_by_categories + all_books_by_categories_next:
+    for book in category:
+        this_book_category = book[7]
+        if this_book_category not in all_books:
+            all_books[this_book_category] = []
+        all_books[this_book_category].append(book)
 
-for i in all_books_by_categories:
-    for j in i:
-        category_name = j[7]
+# Créer un fichier CSV pour chaque catégorie
+header = ['books_url', 'universal_product_code', 'title', 'price_including_tax',
+          'price_excluding_tax', 'number_available', 'product_description', 'category',
+          'review_rating', 'image_url']
 
-        headers = ["books_url", "universal_product_code", "title",
-                   "price_including_tax",
-                   "price_excluding_tax", "number_available", "product_description",
-                   "category", "review_rating", "image_url"]
-
-        with open(category_name + ".csv", "w", encoding='utf-8', newline="") as csv_file:
-            writer = csv.writer(csv_file, delimiter=",")
-            writer.writerow(headers)
-            for description_books_categories in i:
-                writer.writerow(description_books_categories)
-
-
+for category, books in all_books.items():
+    with open(category + '.csv', 'w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(header)
+        writer.writerows(books)
 
 
-# for i,j in description_books_categories, all_books_by_categories_next:
-#     for k, l in i, j:
-#         category_name = k[7]
-#
-#         headers = ["books_url", "universal_product_code", "title",
-#                    "price_including_tax",
-#                    "price_excluding_tax", "number_available", "product_description",
-#                    "category", "review_rating", "image_url"]
-#
-#         with open(category_name + ".csv", "w", encoding='utf-8', newline="") as csv_file:
-#             writer = csv.writer(csv_file, delimiter=",")
-#             writer.writerow(headers)
-#             for description_books_categories, description_next_category in zip(i, j):
-#                 writer.writerow([description_books_categories, description_next_category])
+
 
 
 
