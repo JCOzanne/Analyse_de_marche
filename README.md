@@ -42,27 +42,27 @@ Exécutez le script main.py pour lancer le processus de scraping :
 python main.py
 
 Ce script effectuera les opérations suivantes :
-•	Récupération des données des livres depuis le site "Books to Scrape".
-•	Organisation des livres dans des fichiers CSV par catégories.
-•	Téléchargement des images de couverture des livres dans le répertoire book_images.
+-	Récupération des données des livres depuis le site "Books to Scrape".
+-	Organisation des livres dans des fichiers CSV par catégories.
+-	Téléchargement des images de couverture des livres dans le répertoire book_images.
 
 ## Créer l’environnement virtuel
-
+```
 cd Analyse_de_marche
 python -m venv venv
-
+```
 # Activer l’environnement virtuel
-
+```
 source env/bin/activate (macOS et Linux) 
  env\Scripts\activate (Windows)
-
+```
 Structure du Répertoire
-•	main.py : Script principal Python pour le scraping.
-•	book_images/ : Répertoire pour stocker les images de couverture téléchargées.
-•	nom_de_la_categorie.csv : Fichiers CSV contenant les détails des livres pour chaque catégorie.
+-	main.py : Script principal Python pour le scraping.
+-	book_images/ : Répertoire pour stocker les images de couverture téléchargées.
+-	nom_de_la_categorie.csv : Fichiers CSV contenant les détails des livres pour chaque catégorie.
 
 Notes
-•	Chaque livre est enregistré avec son titre comme nom de fichier d'image après nettoyage des caractères spéciaux.
+Chaque livre est enregistré avec son titre comme nom de fichier d'image après nettoyage des caractères spéciaux.
 
 
 ### Explications du README :
