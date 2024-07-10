@@ -17,7 +17,7 @@ url = "https://books.toscrape.com/"
 response = requests.get(url)
 soup = BeautifulSoup(response.content, "html.parser")
 
-#---------------PHASE 1 ---------------------
+#--------------- PHASE 1  : Extraction des données d'un livre  et chargement dans un fichier CSV ---------------------
 
 
 # Extraction de l'url de la page du produit
@@ -54,7 +54,7 @@ title = column.find("h1")
 
 price_including_tax = informations[3].find("td")
 
-#Extraction du prix sans taxes
+# Extraction du prix sans taxes
 
 price_excluding_tax = informations[2].find("td")
 
@@ -99,7 +99,11 @@ with open("book.csv", "w", newline="") as csv_file:
     writer.writerow(headers)
     writer.writerow(informations)
 
-#---------------PHASE 2 ---------------------
+
+
+#--------------- PHASE 2  : Extraction des données des livres d'une catégorie et chargement dans un fichier CSV ---------------------
+
+
 
 # je choisis la catégorie Mystery : 32 livres sur 2 pages
 
@@ -225,15 +229,14 @@ with open("full_category.csv", "w", newline="") as csv_file:
     for full_description in full_descriptions:
         writer.writerow(full_description)
 
-#---------------PHASE 3 ---------------------
+#---------------PHASE 3 et 4  : Extraction des données des livres de toutes les catégories ---------------------
+#                               Chargement dans un fichier CSV distinct par catégorie
+#                               chargement des images dans un dossier
 
 
-# Créer un répertoire pour stocker les images
-# image_directory = 'book_images'
-# if not os.path.exists(image_directory):
-#     os.makedirs(image_directory)
 
 # URL de la page d'accueil
+
 url = "https://books.toscrape.com/"
 response = requests.get(url)
 soup = BeautifulSoup(response.content, "html.parser")
@@ -294,7 +297,6 @@ for urls_category in urls_categories:
 
         # Télécharger l'image avec le titre du livre comme nom de fichier
         image_response = requests.get(image_url_category_first_page)
-        print("chemin de l'image", image_name)
         with open(image_name, 'wb') as img_file:
             img_file.write(image_response.content)
 
